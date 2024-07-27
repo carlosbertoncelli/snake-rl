@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
                 model_count += 1
                 agent.replay()
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, SystemExit, Exception, SystemError):
             break
     agent.model.save("snake_model.keras")
     pygame.quit()
