@@ -43,7 +43,7 @@ class DQNAgent:
     def act(self, state):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
-        act_values = self.model.predict(state)
+        act_values = self.model.predict(state, verbose=0)
         return np.argmax(act_values[0])
 
     def replay(self, batch_size=32):
@@ -56,7 +56,7 @@ class DQNAgent:
                 target = reward + self.gamma * np.amax(
                     self.target_model.predict(next_state, verbose=0)[0]
                 )
-            target_f = self.model.predict(state)
+            target_f = self.model.predict(state, verbose=0)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     agent = DQNAgent(state_size=11, action_size=4)
     episodes = 1000
     model_count = 0
-
+    clock.tick(240)
     for e in range(episodes):
         try:
             snake = Snake()
@@ -99,15 +99,15 @@ if __name__ == "__main__":
                 agent.remember(state, action, reward, next_state, done)
                 state = next_state
 
+                draw_objects(snake, food)
+
                 if done:
                     print(f"Episode: {e}/{episodes}, Score: {len(snake.positions)}")
                     break
 
-                draw_objects(snake, food)
-                clock.tick(30)
                 model_count += 1
                 agent.replay()
         except KeyboardInterrupt:
             break
-    agent.model.save("snake_model.h5")
+    agent.model.save("snake_model.keras")
     pygame.quit()
